@@ -134,51 +134,89 @@ export const BiometricProvider = ({ children }) => {
     return false;
   };
 
-  // 5. Visibility / App Switch / App Close Detection
+  // 5. Robust Visibility / App Switch / App Close Detection
   useEffect(() => {
     if (!isAuthenticated || !shouldEnforceLock) {
       setIsLocked(false);
       return;
     }
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        // App minimized, cleared, or user switched apps
-        backgroundTimeRef.current = Date.now();
-      } else if (document.visibilityState === 'visible') {
-        // App reopened or brought back to foreground
-        if (backgroundTimeRef.current) {
-          const elapsedSeconds = (Date.now() - backgroundTimeRef.current) / 1000;
-          if (elapsedSeconds >= lockTimeout) {
-            setIsLocked(true);
-          }
-          backgroundTimeRef.current = null;
-        }
+    const onAppBackground = () => {
+      const now = Date.now();
+      backgroundTimeRef.current = now;
+      sessionStorage.setItem('els_bg_timestamp', String(now));
+
+      // If timeout is "Immediately" (0s), lock instantly as soon as user leaves the app
+      if (lockTimeout === 0) {
+        setIsLocked(true);
       }
     };
 
-    const handlePageHide = () => {
-      backgroundTimeRef.current = Date.now();
-    };
-
-    const handlePageShow = () => {
-      if (backgroundTimeRef.current) {
-        const elapsedSeconds = (Date.now() - backgroundTimeRef.current) / 1000;
-        if (elapsedSeconds >= lockTimeout) {
+    const onAppForeground = () => {
+      // If lock timeout is Immediately (0s), ensure lock is active
+      if (lockTimeout === 0) {
+        const stored = sessionStorage.getItem('els_bg_timestamp') || backgroundTimeRef.current;
+        if (stored) {
           setIsLocked(true);
         }
         backgroundTimeRef.current = null;
+        sessionStorage.removeItem('els_bg_timestamp');
+        return;
+      }
+
+      // If lock timeout is timed (e.g. 15s, 30s, 1m, 5m)
+      const storedTime =
+        backgroundTimeRef.current ||
+        parseInt(sessionStorage.getItem('els_bg_timestamp') || '0', 10);
+
+      if (storedTime > 0) {
+        const elapsedSeconds = (Date.now() - storedTime) / 1000;
+        if (elapsedSeconds >= lockTimeout) {
+          setIsLocked(true);
+        }
+      }
+
+      backgroundTimeRef.current = null;
+      sessionStorage.removeItem('els_bg_timestamp');
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        onAppBackground();
+      } else if (document.visibilityState === 'visible') {
+        onAppForeground();
       }
     };
 
+    const handleWindowBlur = () => {
+      // Avoid false positive if user simply focused an input inside the page
+      if (
+        document.activeElement &&
+        (document.activeElement.tagName === 'INPUT' ||
+          document.activeElement.tagName === 'TEXTAREA' ||
+          document.activeElement.tagName === 'SELECT')
+      ) {
+        return;
+      }
+      onAppBackground();
+    };
+
+    const handleWindowFocus = () => {
+      onAppForeground();
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('pagehide', handlePageHide);
-    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('pagehide', onAppBackground);
+    window.addEventListener('pageshow', onAppForeground);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('pagehide', handlePageHide);
-      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('pagehide', onAppBackground);
+      window.removeEventListener('pageshow', onAppForeground);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
     };
   }, [isAuthenticated, shouldEnforceLock, lockTimeout]);
 

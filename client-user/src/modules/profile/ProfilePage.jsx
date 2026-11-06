@@ -825,28 +825,19 @@ export default function ProfilePage() {
             {isBiometricEnabled && (
               <div className="biometric-settings-details">
                 {/* 4-Digit Passcode Management */}
-                <div className="biometric-scope-box" style={{ padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="biometric-scope-box">
+                  <div className="biometric-row-header">
                     <div>
-                      <div style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
+                      <div className="biometric-card-item-title">
                         4-Digit Passcode
                       </div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary, #64748b)' }}>
-                        PIN Status: <span style={{ color: '#059669', fontWeight: 700 }}>● ● ● ● Active</span>
+                      <div className="biometric-card-item-subtitle">
+                        PIN Status: <span className="biometric-active-status">● ● ● ● Active</span>
                       </div>
                     </div>
                     <button
                       type="button"
-                      style={{
-                        background: 'rgba(5, 150, 105, 0.1)',
-                        color: '#059669',
-                        border: '1px solid rgba(5, 150, 105, 0.3)',
-                        borderRadius: '10px',
-                        padding: '6px 12px',
-                        fontSize: '12.5px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                      }}
+                      className="biometric-action-chip-btn"
                       onClick={() => {
                         setShowPinChange(!showPinChange);
                         setPinMsg({ text: '', isError: false });
@@ -857,7 +848,7 @@ export default function ProfilePage() {
                   </div>
 
                   {showPinChange && (
-                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className="biometric-pin-change-form">
                       <input
                         type="password"
                         maxLength={4}
@@ -865,7 +856,6 @@ export default function ProfilePage() {
                         value={pinOld}
                         onChange={(e) => setPinOld(e.target.value)}
                         className="biometric-password-input"
-                        style={{ padding: '8px 12px', fontSize: '13px' }}
                       />
                       <input
                         type="password"
@@ -874,7 +864,6 @@ export default function ProfilePage() {
                         value={pinNew}
                         onChange={(e) => setPinNew(e.target.value)}
                         className="biometric-password-input"
-                        style={{ padding: '8px 12px', fontSize: '13px' }}
                       />
                       <input
                         type="password"
@@ -883,17 +872,16 @@ export default function ProfilePage() {
                         value={pinConfirm}
                         onChange={(e) => setPinConfirm(e.target.value)}
                         className="biometric-password-input"
-                        style={{ padding: '8px 12px', fontSize: '13px' }}
                       />
                       {pinMsg.text && (
-                        <div style={{ fontSize: '12px', fontWeight: 600, color: pinMsg.isError ? '#ef4444' : '#10b981' }}>
+                        <div className={`biometric-pin-msg ${pinMsg.isError ? 'is-error' : 'is-success'}`}>
                           {pinMsg.text}
                         </div>
                       )}
                       <button
                         type="button"
                         className="feedback-btn-primary"
-                        style={{ padding: '8px 14px', fontSize: '13px', marginTop: '4px' }}
+                        style={{ padding: '9px 14px', fontSize: '13px', marginTop: '4px' }}
                         onClick={() => {
                           if (!pinOld) {
                             setPinMsg({ text: 'Please enter your current PIN.', isError: true });
@@ -926,12 +914,12 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Unlock with Biometrics Toggle */}
-                <div className="biometric-toggle-box" style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '14px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+                <div className="biometric-toggle-box">
                   <div className="biometric-toggle-info">
-                    <div className="biometric-toggle-title" style={{ fontSize: '13.5px' }}>
+                    <div className="biometric-toggle-title">
                       Unlock with Fingerprint / Face ID
                     </div>
-                    <div className="biometric-toggle-desc" style={{ fontSize: '12px' }}>
+                    <div className="biometric-toggle-desc">
                       Tap fingerprint shortcut on passcode keypad
                     </div>
                   </div>
