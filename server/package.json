@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "create-admin": "node scripts/upsert-admin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

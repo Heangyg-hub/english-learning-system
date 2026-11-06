@@ -1,6 +1,7 @@
 'use strict';
 
 const { Router } = require('express');
+const env = require('../config/env');
 const authRoutes = require('./auth.routes');
 const programRoutes = require('./program.routes');
 const vocabularyRoutes = require('./vocabulary.routes');
@@ -16,8 +17,8 @@ router.get('/', (req, res) => {
   res.status(200).json({
     status: 'ok',
     message: 'English Learning API is active',
-    environment: process.env.NODE_ENV || 'development',
-    database: process.env.DB_NAME || 'test',
+    environment: env.NODE_ENV,
+    database: env.DB_NAME,
   });
 });
 

@@ -1,12 +1,13 @@
 'use strict';
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isProduction = NODE_ENV === 'production';
 
-// Production defaults to 'english-learning', local/dev defaults to 'test'
-const defaultDbName = isProduction ? 'english-learning' : 'test';
+// Production defaults to 'production', local/dev defaults to 'development'
+const defaultDbName = isProduction ? 'production' : 'development';
 const DB_NAME = process.env.DB_NAME || defaultDbName;
 
 module.exports = {

@@ -82,8 +82,8 @@ export default function LoginPage() {
           layout="vertical"
           onFinish={onFinish}
           initialValues={{
-            email: 'admin@english.com',
-            password: 'admin123',
+            email: 'Sengheang@els.com',
+            password: 'Admin@heang123$',
           }}
         >
           <Form.Item
@@ -96,7 +96,7 @@ export default function LoginPage() {
           >
             <Input
               prefix={<Icon icon="lucide:mail" color="#94a3b8" width={18} style={{ marginRight: 6 }} />}
-              placeholder="admin@english.com"
+              placeholder="Sengheang@els.com"
               size="large"
             />
           </Form.Item>
@@ -132,7 +132,7 @@ export default function LoginPage() {
 
           <div style={{ textAlign: 'center', marginTop: 12 }}>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Default credentials: <code style={{ color: '#2563eb' }}>admin@english.com</code> / <code style={{ color: '#2563eb' }}>admin123</code>
+              Default credentials: <code style={{ color: '#2563eb' }}>Sengheang@els.com</code> / <code style={{ color: '#2563eb' }}>Admin@heang123$</code>
             </Text>
           </div>
         </Form>

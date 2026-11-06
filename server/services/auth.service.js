@@ -6,14 +6,15 @@ const { generateAccessToken } = require('../utils/jwt');
 
 class AuthService {
   async register({ username, email, password, role = 'user' }) {
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = (email || '').toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       throw new ApiError(409, 'Email is already registered.');
     }
 
     const user = await User.create({
       username,
-      email,
+      email: normalizedEmail,
       password,
       role: role === 'admin' ? 'user' : role, // Only seed or admin can grant admin role
     });
@@ -33,7 +34,8 @@ class AuthService {
   }
 
   async login({ email, password }) {
-    const user = await User.findOne({ email }).select('+password');
+    const normalizedEmail = (email || '').toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
     if (!user) {
       throw new ApiError(401, 'Invalid email or password.');
     }

@@ -63,18 +63,22 @@ Each sub-project contains its own `.env` file (with `.env.example` reference):
   VITE_API_URL=http://localhost:5001/api
   ```
 
-### 3. Database Seeding
+### 3. Database Initialization & Seeding
 
-Run the seed script to populate sample admin/learner accounts, default programs (General English, IELTS, Business), curriculum levels, and rich English-Khmer vocabulary entries:
-
+1. **Create Default Admin Account:**
 ```bash
-cd server
+npm run create-admin
+```
+*(Creates admin account: `Sengheang@els.com` / `Admin@heang123$`)*
+
+2. **Seed Curriculum Data (Programs, Levels, Vocabularies):**
+```bash
 npm run seed
 ```
+*(Populates default programs such as General English, IELTS, Business, curriculum levels, and rich English-Khmer vocabulary entries without touching user accounts)*
 
-#### Default Credentials:
-- **Admin Account:** `admin@english.com` / `admin123`
-- **Learner Account:** `user@english.com` / `user123`
+#### Default Admin Credentials:
+- **Admin Account:** `Sengheang@els.com` / `Admin@heang123$`
 
 ---
 
