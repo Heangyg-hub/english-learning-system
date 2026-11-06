@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg-sidebar: #0f172a;
+  --bg-header: #ffffff;
+  --text-primary: #1e293b;
+  --border-color: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: #f8fafc;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ant Design customizations */
+.ant-table-wrapper {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.ant-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.ant-btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.badge-pos {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+

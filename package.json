@@ -1,0 +1,12 @@
+{
+  "name": "english-learning-system",
+  "version": "1.0.0",
+  "description": "Full-Stack English Learning System",
+  "private": true,
+  "scripts": {
+    "server": "npm --prefix server run dev",
+    "admin": "npm --prefix client-admin run dev",
+    "user": "npm --prefix client-user run dev",
+    "seed": "npm --prefix server run seed"
+  }
+}
