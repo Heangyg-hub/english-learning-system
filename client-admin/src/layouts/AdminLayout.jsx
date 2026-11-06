@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, theme } from 'antd';
 import { Icon } from '@iconify/react';
+import EducationDegreeIcon from '../components/EducationDegreeIcon';
 import { useAuth } from '../context/AuthContext';
 
 const { Header, Sider, Content } = Layout;
@@ -28,6 +29,11 @@ export default function AdminLayout() {
       key: '/dictionary',
       icon: <Icon icon="lucide:book-open" width={20} />,
       label: 'Vocabulary Dictionary',
+    },
+    {
+      key: '/users',
+      icon: <Icon icon="lucide:users" width={20} />,
+      label: 'Student Accounts',
     },
   ];
 
@@ -84,20 +90,7 @@ export default function AdminLayout() {
             borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-            }}
-          >
-            <Icon icon="lucide:languages" width={22} />
-          </div>
+          <EducationDegreeIcon size={34} />
           {!collapsed && (
             <div>
               <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>English Admin</div>

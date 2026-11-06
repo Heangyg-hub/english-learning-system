@@ -1,0 +1,305 @@
+/* ── Biometric App Lock Screen ── */
+
+.biometric-lock-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+  animation: lockFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lockFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.biometric-lock-card {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  padding: 2rem 1.75rem 1.75rem;
+  box-sizing: border-box;
+  text-align: center;
+  animation: lockPopUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lockPopUp {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.biometric-lock-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+}
+
+.biometric-lock-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #059669;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 4px;
+}
+
+.biometric-lock-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* User Cardlet */
+.biometric-lock-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 6px 16px 6px 6px;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.biometric-lock-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.biometric-user-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.biometric-user-desc {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Sensor Section */
+.biometric-sensor-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.biometric-fingerprint-btn {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 1.25rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px -4px rgba(5, 150, 105, 0.25);
+}
+
+.biometric-fingerprint-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px -4px rgba(5, 150, 105, 0.35);
+  border-color: #22c55e;
+}
+
+.fingerprint-icon {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+.fingerprint-scan-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(5, 150, 105, 0.3);
+  animation: scanPulse 2s ease-out infinite;
+}
+
+.fingerprint-scan-ring.ring-outer {
+  inset: -14px;
+  border-color: rgba(5, 150, 105, 0.15);
+  animation: scanPulse 2s ease-out infinite 0.4s;
+}
+
+@keyframes scanPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 0.3; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+
+.biometric-fingerprint-btn.is-scanning {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border-color: #059669;
+  animation: scannerBounce 1s infinite alternate;
+}
+
+@keyframes scannerBounce {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+.biometric-sensor-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 1.25rem;
+  line-height: 1.4;
+  max-width: 260px;
+}
+
+/* Action Buttons */
+.biometric-unlock-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+  transition: background-color 0.15s ease, transform 0.12s ease;
+  margin-bottom: 8px;
+}
+
+.biometric-unlock-action-btn:hover {
+  background-color: #047857;
+  transform: translateY(-1px);
+}
+
+.biometric-unlock-action-btn:active {
+  transform: translateY(0);
+}
+
+.biometric-switch-fallback-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.biometric-switch-fallback-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+/* Fallback Password Form */
+.biometric-fallback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.biometric-fallback-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 4px;
+}
+
+.biometric-input-wrap {
+  width: 100%;
+}
+
+.biometric-password-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.biometric-password-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.biometric-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* ── Dark Mode for Biometric Lock ── */
+[data-theme="dark"] .biometric-lock-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+}
+
+[data-theme="dark"] .biometric-lock-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .biometric-user-box {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .biometric-user-name {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .biometric-password-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .biometric-fallback-btn {
+  background: #334155;
+  color: #f8fafc;
+}
+
+

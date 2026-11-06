@@ -70,6 +70,27 @@ class AuthService {
     }
     return user;
   }
+
+  async updateProfile(userId, { username, avatar }) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'User not found.');
+    }
+    if (username !== undefined && username.trim()) {
+      user.username = username.trim();
+    }
+    if (avatar !== undefined) {
+      user.avatar = avatar;
+    }
+    await user.save();
+    return {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+    };
+  }
 }
 
 module.exports = new AuthService();

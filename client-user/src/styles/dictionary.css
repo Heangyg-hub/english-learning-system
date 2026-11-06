@@ -4,17 +4,24 @@
 }
 
 .dict-page {
-  max-width: 760px;
+  max-width: 520px;
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
-  padding-top: 1rem;
-  padding-bottom: 1.5rem;
+  padding: 0 1rem 1.5rem;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 640px) {
   .dict-page {
-    padding-top: 0.75rem;
+    max-width: 620px;
+    padding: 0 1.25rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dict-page {
+    max-width: 720px;
+    padding: 0 1.5rem 2.5rem;
   }
 }
 

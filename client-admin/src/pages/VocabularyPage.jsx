@@ -293,11 +293,13 @@ export default function VocabularyPage() {
   return (
     <div>
       <Card
+        styles={{ header: { padding: '18px 24px' } }}
+        headStyle={{ padding: '18px 24px' }}
         title={
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, padding: '4px 0' }}>
             <div>
-              <Title level={4} style={{ margin: 0 }}>English-Khmer Dictionary</Title>
-              <Text type="secondary">Manage vocabulary entries, definitions, collocations, and idioms</Text>
+              <Title level={4} style={{ margin: '0 0 5px 0', fontWeight: 700, lineHeight: 1.3 }}>English-Khmer Dictionary</Title>
+              <Text type="secondary" style={{ fontSize: 13.5, display: 'block', lineHeight: 1.4 }}>Manage vocabulary entries, definitions, collocations, and idioms</Text>
             </div>
             <Button
               type="primary"

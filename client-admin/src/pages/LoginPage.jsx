@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Form, Input, Button, Card, Alert, Typography } from 'antd';
+import { Form, Input, Button, Card, Alert, Typography, Checkbox } from 'antd';
 import { Icon } from '@iconify/react';
+import EducationDegreeIcon from '../components/EducationDegreeIcon';
 import { useAuth } from '../context/AuthContext';
 
 const { Title, Text } = Typography;
@@ -15,9 +16,54 @@ export default function LoginPage() {
 
   const from = location.state?.from?.pathname || '/dashboard';
 
+  // "Remember me" state and pre-populated credentials
+  const [remember, setRemember] = useState(() => {
+    return localStorage.getItem('els_admin_remember_me') !== 'false';
+  });
+
+  const rememberedEmail = (() => {
+    const isRemember = localStorage.getItem('els_admin_remember_me');
+    if (isRemember === 'false') return '';
+    return localStorage.getItem('els_admin_remember_email') || 'Sengheang@els.com';
+  })();
+
+  const rememberedPassword = (() => {
+    const isRemember = localStorage.getItem('els_admin_remember_me');
+    if (isRemember === 'false') return '';
+    return localStorage.getItem('els_admin_remember_password') || 'Admin@heang123$';
+  })();
+
+  const handleRememberChange = (e) => {
+    const checked = e.target.checked;
+    setRemember(checked);
+    if (!checked) {
+      localStorage.setItem('els_admin_remember_me', 'false');
+      localStorage.removeItem('els_admin_remember_email');
+      localStorage.removeItem('els_admin_remember_password');
+    } else {
+      localStorage.setItem('els_admin_remember_me', 'true');
+    }
+  };
+
   const onFinish = async (values) => {
     setLoading(true);
     setErrorMsg('');
+
+    const shouldRemember = values.remember !== false;
+    if (shouldRemember) {
+      localStorage.setItem('els_admin_remember_me', 'true');
+      if (values.email?.trim()) {
+        localStorage.setItem('els_admin_remember_email', values.email.trim());
+      }
+      if (values.password) {
+        localStorage.setItem('els_admin_remember_password', values.password);
+      }
+    } else {
+      localStorage.setItem('els_admin_remember_me', 'false');
+      localStorage.removeItem('els_admin_remember_email');
+      localStorage.removeItem('els_admin_remember_password');
+    }
+
     try {
       await login(values.email, values.password);
       navigate(from, { replace: true });
@@ -50,20 +96,8 @@ export default function LoginPage() {
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              marginBottom: 16,
-            }}
-          >
-            <Icon icon="lucide:graduation-cap" width={32} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+            <EducationDegreeIcon size={56} />
           </div>
           <Title level={3} style={{ marginBottom: 4 }}>Admin Sign In</Title>
           <Text type="secondary">English Learning Management Panel</Text>
@@ -82,8 +116,9 @@ export default function LoginPage() {
           layout="vertical"
           onFinish={onFinish}
           initialValues={{
-            email: 'Sengheang@els.com',
-            password: 'Admin@heang123$',
+            email: rememberedEmail,
+            password: rememberedPassword,
+            remember: remember,
           }}
         >
           <Form.Item
@@ -113,7 +148,25 @@ export default function LoginPage() {
             />
           </Form.Item>
 
-          <Form.Item style={{ marginTop: 24 }}>
+          {/* Remember me Checkbox */}
+          <div style={{ marginBottom: 20 }}>
+            <Form.Item name="remember" valuePropName="checked" noStyle>
+              <Checkbox
+                checked={remember}
+                onChange={handleRememberChange}
+                style={{
+                  color: '#475569',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  userSelect: 'none',
+                }}
+              >
+                Remember me
+              </Checkbox>
+            </Form.Item>
+          </div>
+
+          <Form.Item style={{ marginTop: 8 }}>
             <Button
               type="primary"
               htmlType="submit"
@@ -130,11 +183,11 @@ export default function LoginPage() {
             </Button>
           </Form.Item>
 
-          <div style={{ textAlign: 'center', marginTop: 12 }}>
+          {/* <div style={{ textAlign: 'center', marginTop: 12 }}>
             <Text type="secondary" style={{ fontSize: 12 }}>
               Default credentials: <code style={{ color: '#2563eb' }}>Sengheang@els.com</code> / <code style={{ color: '#2563eb' }}>Admin@heang123$</code>
             </Text>
-          </div>
+          </div> */}
         </Form>
       </Card>
     </div>

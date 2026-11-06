@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProgramsPage from './pages/ProgramsPage';
 import VocabularyPage from './pages/VocabularyPage';
+import UsersPage from './pages/UsersPage';
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="programs" element={<ProgramsPage />} />
               <Route path="dictionary" element={<VocabularyPage />} />
+              <Route path="users" element={<UsersPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

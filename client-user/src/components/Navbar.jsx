@@ -1,25 +1,44 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import EducationDegreeIcon from './EducationDegreeIcon';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   const isProfilePage = location.pathname === '/profile';
 
-  const handleAvatarClick = () => {
-    if (isAuthenticated) {
-      if (!isProfilePage) {
-        navigate('/profile');
-      } else {
-        navigate('/');
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
       }
-    } else {
-      navigate('/login');
-    }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close dropdown on navigation
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    logout();
+    setDropdownOpen(false);
+    navigate('/login');
   };
+
+  const userInitials =
+    user?.username?.slice(0, 2)?.toUpperCase() ||
+    user?.email?.slice(0, 2)?.toUpperCase() ||
+    'ST';
 
   return (
     <header
@@ -27,9 +46,10 @@ export default function Navbar() {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+        backgroundColor: 'var(--bg-navbar, #ffffff)',
+        borderBottom: '1px solid var(--border-navbar, #e2e8f0)',
+        boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))',
+        transition: 'background-color 0.2s ease, border-color 0.2s ease',
       }}
     >
       <div
@@ -52,153 +72,163 @@ export default function Navbar() {
           }}
           title={isProfilePage ? 'Back to Home' : 'ELS Student'}
         >
-          <img
-            src="/Logo/logo-cls-system-default.png"
-            alt="ELS Logo"
-            style={{
-              height: '36px',
-              width: 'auto',
-              maxWidth: '52px',
-              objectFit: 'contain',
-              display: 'block',
-            }}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              if (e.currentTarget.nextElementSibling) {
-                e.currentTarget.nextElementSibling.style.display = 'flex';
-              }
-            }}
-          />
-          <div
-            style={{
-              display: 'none',
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-            }}
-          >
-            <Icon icon="lucide:languages" width={20} />
-          </div>
+          <EducationDegreeIcon size={36} />
           <div>
-            <div style={{ fontWeight: 800, fontSize: '17px', color: '#0f172a', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            <div
+              style={{
+                fontWeight: 800,
+                fontSize: '17px',
+                color: 'var(--heading, #0f172a)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+              }}
+            >
               ELS Student
             </div>
           </div>
         </Link>
 
-        {/* Right Actions: Notifications, ID Pass & Profile Avatar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Notification Button */}
-          <button
-            type="button"
-            onClick={() => alert('No new notifications')}
-            aria-label="Notifications"
-            style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              border: '1px solid #e2e8f0',
-              backgroundColor: '#ffffff',
-              color: '#3b82f6',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-            }}
-          >
-            <Icon icon="lucide:bell" width={18} />
-          </button>
-
-          {/* Student Pass Button */}
-          <button
-            type="button"
-            onClick={() => {
-              if (isAuthenticated) {
-                navigate('/profile');
-              } else {
-                navigate('/login');
-              }
-            }}
-            aria-label="Student Pass"
-            style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              border: '1px solid #e2e8f0',
-              backgroundColor: '#ffffff',
-              color: '#10b981',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-            }}
-          >
-            <Icon icon="lucide:id-card" width={18} />
-          </button>
-
-          {/* Profile Avatar Button */}
-          <button
-            type="button"
-            onClick={handleAvatarClick}
-            aria-label="Profile"
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              padding: '2px',
-              border: '2px solid transparent',
-              background: 'linear-gradient(135deg, #f59e0b, #ef4444, #3b82f6) border-box',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              overflow: 'hidden',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-            }}
-          >
-            <img
-              src="/founder/Young Sengheang.jpg"
-              alt="User"
+        {/* Right Actions */}
+        {isAuthenticated ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} ref={dropdownRef}>
+            {/* Notification Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/notifications')}
+              aria-label="Notifications"
+              title="Notifications"
               style={{
-                width: '100%',
-                height: '100%',
+                width: '38px',
+                height: '38px',
                 borderRadius: '50%',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                if (e.currentTarget.nextElementSibling) {
-                  e.currentTarget.nextElementSibling.style.display = 'flex';
-                }
-              }}
-            />
-            <div
-              style={{
-                display: 'none',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                backgroundColor: '#2563eb',
-                color: '#ffffff',
-                fontWeight: 700,
-                fontSize: '13px',
+                border: '1px solid var(--border, #e2e8f0)',
+                backgroundColor: 'var(--bg-card, #ffffff)',
+                color: '#3b82f6',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
               }}
             >
-              {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-            </div>
-          </button>
-        </div>
+              <Icon icon="lucide:bell" width={18} />
+            </button>
+
+            {/* Student Pass Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              aria-label="Student Pass"
+              title="Student Pass"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                border: '1px solid var(--border, #e2e8f0)',
+                backgroundColor: 'var(--bg-card, #ffffff)',
+                color: '#10b981',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+              }}
+            >
+              <Icon icon="lucide:id-card" width={18} />
+            </button>
+
+            {/* Profile Avatar Button (Clicking navigates to Profile page) */}
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              aria-label="Student Profile"
+              title={user?.username ? `${user.username} (View Profile)` : 'Student Profile'}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                padding: '2px',
+                border: '2px solid transparent',
+                background: 'linear-gradient(135deg, #10b981, #059669) border-box',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                transition: 'transform 0.16s ease, box-shadow 0.16s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.08)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.12)';
+              }}
+            >
+              <img
+                src={user?.avatar || '/founder/Young Sengheang.jpg'}
+                alt={user?.username || 'Student'}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  if (e.currentTarget.nextElementSibling) {
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                  }
+                }}
+              />
+              <div
+                style={{
+                  display: 'none',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {userInitials}
+              </div>
+            </button>
+          </div>
+        ) : (
+          /* Unauthenticated State */
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link
+              to="/login"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 18px',
+                borderRadius: '12px',
+                backgroundColor: '#059669',
+                color: '#ffffff',
+                fontSize: '14px',
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Icon icon="lucide:log-in" width={16} />
+              <span>Sign In</span>
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

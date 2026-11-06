@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useLanguage } from '../../context/LanguageContext';
 import { programService } from '../../services/programService';
 import { dictionaryService } from '../../services/dictionaryService';
 
 export default function SubjectSessionsPage() {
   const { id, levelId } = useParams();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const isKhmer = language === 'km';
   const [program, setProgram] = useState(null);
   const [level, setLevel] = useState(null);
   const [wordCount, setWordCount] = useState(0);
@@ -73,7 +76,7 @@ export default function SubjectSessionsPage() {
   ];
 
   return (
-    <div className="browse-page" style={{ maxWidth: '820px' }}>
+    <div className="browse-page">
       {/* ── Top Hero Banner (Image 5) ─────────────────────────────────── */}
       <div className="browse-hero browse-hero-subjects">
         <Link to={`/programs/${id}`} className="browse-back">
@@ -114,8 +117,23 @@ export default function SubjectSessionsPage() {
       </div>
 
       {/* ── Unit Cards with 2 Stats Columns (Image 5) ────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {units.map((unit) => (
+      {units.length === 0 ? (
+        <div className="browse-empty-card">
+          <div className="browse-empty-icon-wrap">
+            <Icon icon="lucide:calendar-x" width={36} />
+          </div>
+          <div className="browse-empty-title">
+            {isKhmer ? 'មិនទាន់មានមេរៀននៅឡើយទេ' : 'No Sessions Available Yet'}
+          </div>
+          <p className="browse-empty-desc">
+            {isKhmer
+              ? 'មេរៀន និងវាក្យសព្ទសម្រាប់ថ្នាក់នេះ នឹងត្រូវបានបញ្ចូលឆាប់ៗនេះ។'
+              : 'Lessons and vocabulary units for this class will appear here soon.'}
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {units.map((unit) => (
           <div
             key={unit.id}
             onClick={() => navigate('/dictionary')}
@@ -258,7 +276,8 @@ export default function SubjectSessionsPage() {
           </div>
         ))}
       </div>
-    </div>
+    )}
+  </div>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useLanguage } from '../../context/LanguageContext';
 import { programService } from '../../services/programService';
 
 export default function ProgramsPage() {
@@ -8,6 +9,8 @@ export default function ProgramsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const isKhmer = language === 'km';
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -25,7 +28,7 @@ export default function ProgramsPage() {
   }, []);
 
   return (
-    <div className="browse-page" style={{ maxWidth: '820px' }}>
+    <div className="browse-page">
       {/* ── Top Hero Banner (Matching Image 1, 3, 4, 5) ─────────────── */}
       <div className="browse-hero">
         <Link to="/" className="browse-back">
@@ -50,6 +53,20 @@ export default function ProgramsPage() {
       ) : error ? (
         <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#fef2f2', borderRadius: '12px', color: '#b91c1c' }}>
           {error}
+        </div>
+      ) : programs.length === 0 ? (
+        <div className="browse-empty-card">
+          <div className="browse-empty-icon-wrap">
+            <Icon icon="lucide:book-open" width={36} />
+          </div>
+          <div className="browse-empty-title">
+            {isKhmer ? 'មិនទាន់មានកម្មវិធីសិក្សានៅឡើយទេ' : 'No Programs Available Yet'}
+          </div>
+          <p className="browse-empty-desc">
+            {isKhmer
+              ? 'កម្មវិធីសិក្សាភាសាអង់គ្លេស និងកម្រិតសិក្សាថ្មីៗ នឹងត្រូវបានបន្ថែមឆាប់ៗនេះ។'
+              : 'English learning curriculum pathways and levels will be added here soon.'}
+          </p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>

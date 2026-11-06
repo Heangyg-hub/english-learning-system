@@ -14,6 +14,7 @@ const router = Router();
 router.post('/register', registerValidation, validate, authController.register);
 router.post('/login', loginValidation, validate, authController.login);
 router.get('/me', protect, authController.getMe);
+router.put('/profile', protect, authController.updateProfile);
 
 module.exports = router;
 

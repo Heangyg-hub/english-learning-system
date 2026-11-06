@@ -340,11 +340,13 @@ export default function ProgramsPage() {
   return (
     <div>
       <Card
+        styles={{ header: { padding: '18px 24px' } }}
+        headStyle={{ padding: '18px 24px' }}
         title={
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, padding: '4px 0' }}>
             <div>
-              <Title level={4} style={{ margin: 0 }}>Programs & Curriculum</Title>
-              <Text type="secondary">Manage top-level English study tracks and their curriculum levels</Text>
+              <Title level={4} style={{ margin: '0 0 5px 0', fontWeight: 700, lineHeight: 1.3 }}>Programs & Curriculum</Title>
+              <Text type="secondary" style={{ fontSize: 13.5, display: 'block', lineHeight: 1.4 }}>Manage top-level English study tracks and their curriculum levels</Text>
             </div>
             <Button
               type="primary"

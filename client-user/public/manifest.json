@@ -1,0 +1,19 @@
+{
+  "name": "ELS Student — English Learning System",
+  "short_name": "ELS Student",
+  "description": "Bilingual English-Khmer Language Learning Platform and Lexicon",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0fbf5",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/Logo/education-degree.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

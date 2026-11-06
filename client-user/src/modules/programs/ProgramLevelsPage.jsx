@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useLanguage } from '../../context/LanguageContext';
 import { programService } from '../../services/programService';
 
 export default function ProgramLevelsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const isKhmer = language === 'km';
   const [program, setProgram] = useState(null);
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +54,7 @@ export default function ProgramLevelsPage() {
   }
 
   return (
-    <div className="browse-page" style={{ maxWidth: '820px' }}>
+    <div className="browse-page">
       {/* ── Top Hero Banner (Image 4) ─────────────────────────────────── */}
       <div className="browse-hero browse-hero-compact">
         <Link to="/programs" className="browse-back">
@@ -65,8 +68,23 @@ export default function ProgramLevelsPage() {
       </div>
 
       {/* ── Level Cards List (Image 4) ────────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-        {levels.map((level, idx) => (
+      {levels.length === 0 ? (
+        <div className="browse-empty-card">
+          <div className="browse-empty-icon-wrap">
+            <Icon icon="lucide:layers" width={36} />
+          </div>
+          <div className="browse-empty-title">
+            {isKhmer ? 'មិនទាន់មានកម្រិតសិក្សានៅឡើយទេ' : 'No Levels Available Yet'}
+          </div>
+          <p className="browse-empty-desc">
+            {isKhmer
+              ? 'កម្រិតសិក្សាសម្រាប់កម្មវិធីនេះ នឹងត្រូវបានរៀបចំឆាប់ៗនេះ។'
+              : 'Learning levels for this program will be configured soon.'}
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+          {levels.map((level, idx) => (
           <div
             key={level._id}
             onClick={() => navigate(`/programs/${id}/levels/${level._id}`)}
@@ -152,6 +170,7 @@ export default function ProgramLevelsPage() {
           </div>
         ))}
       </div>
-    </div>
+    )}
+  </div>
   );
 }
