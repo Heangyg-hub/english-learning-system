@@ -78,6 +78,15 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Root health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'English Learning Server is running',
+    api: '/api',
+  });
+});
+
 // API Routes
 app.use('/api', apiRoutes);
 
