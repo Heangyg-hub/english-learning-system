@@ -110,9 +110,20 @@ export const BiometricProvider = ({ children }) => {
     localStorage.setItem('els_biometric_only_installed', val ? 'true' : 'false');
   };
 
-  // 4. Lock State
-  const [isLocked, setIsLocked] = useState(false);
+  // 4. Lock State (Initializes to locked if Passcode App Lock is enabled and user is signed in)
+  const [isLocked, setIsLocked] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const hasToken = !!(
+      localStorage.getItem('english_user_token') ||
+      sessionStorage.getItem('english_user_token')
+    );
+    const lockEnabled = localStorage.getItem('els_biometric_enabled') === 'true';
+    return hasToken && lockEnabled;
+  });
+
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const isAuthenticatingRef = useRef(false);
+  const justUnlockedRef = useRef(false);
   const backgroundTimeRef = useRef(null);
 
   // Check if biometric/passcode lock should be active for this session
@@ -129,7 +140,12 @@ export const BiometricProvider = ({ children }) => {
       cleanInput === '1234' ||
       cleanInput === '0000'
     ) {
+      justUnlockedRef.current = true;
       setIsLocked(false);
+      sessionStorage.setItem('els_just_unlocked', 'true');
+      setTimeout(() => {
+        justUnlockedRef.current = false;
+      }, 1500);
       return true;
     }
     return false;
@@ -142,18 +158,35 @@ export const BiometricProvider = ({ children }) => {
       return;
     }
 
+    // On app launch or fresh open, ensure it starts locked if lock is enabled
+    const justUnlocked = sessionStorage.getItem('els_just_unlocked') === 'true';
+    if (!justUnlocked) {
+      setIsLocked(true);
+    }
+
     const onAppBackground = () => {
+      // If currently authenticating biometrics or user just unlocked, ignore!
+      if (isAuthenticatingRef.current || justUnlockedRef.current) {
+        return;
+      }
+
       const now = Date.now();
       backgroundTimeRef.current = now;
       sessionStorage.setItem('els_bg_timestamp', String(now));
+      sessionStorage.removeItem('els_just_unlocked');
 
-      // If timeout is "Immediately" (0s), lock instantly as soon as user leaves the app
+      // If timeout is "Immediately" (0s), lock when user genuinely switches away
       if (lockTimeout === 0) {
         setIsLocked(true);
       }
     };
 
     const onAppForeground = () => {
+      // If currently authenticating biometrics or user just unlocked, ignore!
+      if (isAuthenticatingRef.current || justUnlockedRef.current) {
+        return;
+      }
+
       // If lock timeout is Immediately (0s), ensure lock is active
       if (lockTimeout === 0) {
         const stored = sessionStorage.getItem('els_bg_timestamp') || backgroundTimeRef.current;
@@ -189,35 +222,15 @@ export const BiometricProvider = ({ children }) => {
       }
     };
 
-    const handleWindowBlur = () => {
-      // Avoid false positive if user simply focused an input inside the page
-      if (
-        document.activeElement &&
-        (document.activeElement.tagName === 'INPUT' ||
-          document.activeElement.tagName === 'TEXTAREA' ||
-          document.activeElement.tagName === 'SELECT')
-      ) {
-        return;
-      }
-      onAppBackground();
-    };
-
-    const handleWindowFocus = () => {
-      onAppForeground();
-    };
-
+    // Listen only to genuine visibility and page changes (NEVER window blur/focus which fire on fingerprint prompts!)
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('pagehide', onAppBackground);
     window.addEventListener('pageshow', onAppForeground);
-    window.addEventListener('blur', handleWindowBlur);
-    window.addEventListener('focus', handleWindowFocus);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pagehide', onAppBackground);
       window.removeEventListener('pageshow', onAppForeground);
-      window.removeEventListener('blur', handleWindowBlur);
-      window.removeEventListener('focus', handleWindowFocus);
     };
   }, [isAuthenticated, shouldEnforceLock, lockTimeout]);
 
@@ -276,7 +289,9 @@ export const BiometricProvider = ({ children }) => {
 
   // 7. Trigger Native Biometric Authentication (WebAuthn / Touch ID / Face ID / Fingerprint)
   const authenticateBiometrics = async () => {
+    isAuthenticatingRef.current = true;
     setIsAuthenticating(true);
+
     try {
       if (typeof window !== 'undefined' && window.PublicKeyCredential) {
         const savedPasskeyId = localStorage.getItem('els_passkey_id');
@@ -285,11 +300,17 @@ export const BiometricProvider = ({ children }) => {
         if (!savedPasskeyId) {
           const regRes = await registerBiometrics();
           if (regRes.success) {
+            justUnlockedRef.current = true;
             setIsLocked(false);
             setIsAuthenticating(false);
+            isAuthenticatingRef.current = false;
+            setTimeout(() => {
+              justUnlockedRef.current = false;
+            }, 1500);
             return { success: true, message: 'Biometric fingerprint enrolled and verified!' };
           } else {
             setIsAuthenticating(false);
+            isAuthenticatingRef.current = false;
             return regRes;
           }
         }
@@ -305,7 +326,6 @@ export const BiometricProvider = ({ children }) => {
             {
               id: rawId,
               type: 'public-key',
-              transports: ['internal'],
             },
           ];
         } catch {
@@ -323,26 +343,39 @@ export const BiometricProvider = ({ children }) => {
         });
 
         if (credential) {
+          justUnlockedRef.current = true;
           setIsLocked(false);
+          sessionStorage.setItem('els_just_unlocked', 'true');
           setIsAuthenticating(false);
+          isAuthenticatingRef.current = false;
+          setTimeout(() => {
+            justUnlockedRef.current = false;
+          }, 1500);
           return { success: true };
         }
       }
 
       // Smooth simulated fallback for environments without platform authenticator
       await new Promise((r) => setTimeout(r, 650));
+      justUnlockedRef.current = true;
       setIsLocked(false);
+      sessionStorage.setItem('els_just_unlocked', 'true');
       setIsAuthenticating(false);
+      isAuthenticatingRef.current = false;
+      setTimeout(() => {
+        justUnlockedRef.current = false;
+      }, 1500);
       return { success: true };
     } catch (err) {
       setIsAuthenticating(false);
+      isAuthenticatingRef.current = false;
       console.warn('Biometric authentication error:', err);
 
       // Stale or missing passkey on device: clear ID so next attempt triggers re-enrollment
       if (err.name === 'NotAllowedError') {
         return {
           success: false,
-          message: 'Biometric scan canceled. Tap to retry or use your password.',
+          message: 'Biometric scan canceled. Tap to retry or use your passcode.',
         };
       }
 
@@ -350,7 +383,11 @@ export const BiometricProvider = ({ children }) => {
       localStorage.removeItem('els_passkey_id');
 
       // Graceful unlock if hardware sensor is unavailable
+      justUnlockedRef.current = true;
       setIsLocked(false);
+      setTimeout(() => {
+        justUnlockedRef.current = false;
+      }, 1500);
       return { success: true };
     }
   };
@@ -373,7 +410,12 @@ export const BiometricProvider = ({ children }) => {
       normalizedInput === 'password' ||
       normalizedInput.length >= 4
     ) {
+      justUnlockedRef.current = true;
       setIsLocked(false);
+      sessionStorage.setItem('els_just_unlocked', 'true');
+      setTimeout(() => {
+        justUnlockedRef.current = false;
+      }, 1500);
       return true;
     }
     return false;
