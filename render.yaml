@@ -1,8 +1,9 @@
 services:
   - type: web
-    name: english-learning-server
+    name: english-learning-system
     runtime: node
     plan: free
+    region: singapore
     rootDir: server
     buildCommand: npm install
     startCommand: npm start
