@@ -116,7 +116,8 @@ export const BiometricProvider = ({ children }) => {
   const backgroundTimeRef = useRef(null);
 
   // Check if biometric/passcode lock should be active for this session
-  const shouldEnforceLock = isEnabled && (!onlyWhenInstalled || isStandalone);
+  // Simply activates whenever the user toggles on Passcode App Lock!
+  const shouldEnforceLock = isEnabled;
 
   // Unlock with 4-digit Passcode
   const unlockWithPasscode = (inputCode) => {

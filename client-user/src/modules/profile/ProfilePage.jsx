@@ -18,9 +18,6 @@ export default function ProfilePage() {
     setIsEnabled: setIsBiometricEnabled,
     lockTimeout,
     setLockTimeout,
-    onlyWhenInstalled,
-    setOnlyWhenInstalled,
-    manualLock,
     authenticateBiometrics,
     passcode,
     changePasscode,
@@ -934,38 +931,6 @@ export default function ProfilePage() {
                   </button>
                 </div>
 
-                {/* Scope selector */}
-                <div className="biometric-scope-box" style={{ marginTop: '10px' }}>
-                  <div className="biometric-scope-header">
-                    <span className="biometric-sub-label">Enforce Lock Mode:</span>
-                    <span className={`biometric-env-badge ${isStandalone ? 'is-pwa' : ''}`}>
-                      {isStandalone ? '📱 Installed to Home Screen' : '🌐 Browser View'}
-                    </span>
-                  </div>
-
-                  <div className="biometric-scope-radios">
-                    <label className="biometric-radio-row">
-                      <input
-                        type="radio"
-                        name="scope"
-                        checked={onlyWhenInstalled}
-                        onChange={() => setOnlyWhenInstalled(true)}
-                      />
-                      <span>Only when installed to Home Screen (Mobile App)</span>
-                    </label>
-
-                    <label className="biometric-radio-row">
-                      <input
-                        type="radio"
-                        name="scope"
-                        checked={!onlyWhenInstalled}
-                        onChange={() => setOnlyWhenInstalled(false)}
-                      />
-                      <span>Always on this device (Browser & App)</span>
-                    </label>
-                  </div>
-                </div>
-
                 {/* Timeout Selector */}
                 <div className="biometric-timeout-box" style={{ marginTop: '10px' }}>
                   <span className="biometric-sub-label">Auto-Lock After Inactivity / App Switch:</span>
@@ -987,22 +952,6 @@ export default function ProfilePage() {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div className="biometric-modal-actions" style={{ marginTop: '14px' }}>
-                  <button
-                    type="button"
-                    className="biometric-lock-now-btn"
-                    style={{ width: '100%' }}
-                    onClick={() => {
-                      setActiveModal(null);
-                      manualLock();
-                    }}
-                  >
-                    <Icon icon="lucide:lock" width={16} />
-                    <span>Lock App Now</span>
-                  </button>
                 </div>
               </div>
             )}
