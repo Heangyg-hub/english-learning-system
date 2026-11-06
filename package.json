@@ -4,6 +4,9 @@
   "description": "Full-Stack English Learning System",
   "private": true,
   "scripts": {
+    "build": "npm --prefix client-user run build",
+    "build:user": "npm --prefix client-user run build",
+    "build:admin": "npm --prefix client-admin run build",
     "server": "npm --prefix server run dev",
     "admin": "npm --prefix client-admin run dev",
     "user": "npm --prefix client-user run dev",
