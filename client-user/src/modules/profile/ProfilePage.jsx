@@ -22,7 +22,17 @@ export default function ProfilePage() {
     setOnlyWhenInstalled,
     manualLock,
     authenticateBiometrics,
+    passcode,
+    changePasscode,
+    biometricsEnabled,
+    setBiometricsEnabled,
   } = useBiometrics();
+
+  const [showPinChange, setShowPinChange] = useState(false);
+  const [pinOld, setPinOld] = useState('');
+  const [pinNew, setPinNew] = useState('');
+  const [pinConfirm, setPinConfirm] = useState('');
+  const [pinMsg, setPinMsg] = useState({ text: '', isError: false });
 
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -402,14 +412,14 @@ export default function ProfilePage() {
 
             <div className="profile-setting-divider" />
 
-            {/* Row 7: Biometric Fingerprint & Face Lock */}
+            {/* Row 7: Passcode & Biometric App Lock */}
             <div className="profile-setting-row" onClick={() => setActiveModal('biometric')}>
               <div className="profile-setting-left">
                 <div className="profile-setting-icon-box icon-box--teal">
-                  <Icon icon="lucide:fingerprint" width={20} />
+                  <Icon icon="lucide:shield-check" width={20} />
                 </div>
                 <div className="profile-setting-text">
-                  <span className="profile-setting-title">Fingerprint & Face Lock</span>
+                  <span className="profile-setting-title">Passcode & Biometrics</span>
                   <span
                     className="profile-setting-subtitle"
                     style={{ color: isBiometricEnabled ? '#059669' : '#64748b' }}
@@ -781,35 +791,32 @@ export default function ProfilePage() {
 
             <div className="feedback-modal-header">
               <div className="biometric-modal-icon-bubble">
-                <Icon icon="lucide:fingerprint" width={32} />
+                <Icon icon="lucide:shield-check" width={32} />
               </div>
-              <h3 className="feedback-modal-title">Biometric App Lock</h3>
+              <h3 className="feedback-modal-title">Passcode & Biometrics</h3>
               <p className="feedback-modal-desc">
-                Require Touch ID, Face ID, or Fingerprint when returning to your study session.
+                Protect your study session with a 4-digit PIN and fingerprint sensor.
               </p>
             </div>
 
             {/* Main Toggle Switch */}
             <div className="biometric-toggle-box">
               <div className="biometric-toggle-info">
-                <div className="biometric-toggle-title">Enable Biometric Lock</div>
+                <div className="biometric-toggle-title">Passcode App Lock</div>
                 <div className="biometric-toggle-desc">
-                  Require authentication when app is reopened
+                  Require 4-digit PIN or fingerprint when reopening app
                 </div>
               </div>
               <button
                 type="button"
                 className={`app-ios-switch ${isBiometricEnabled ? 'is-on' : ''}`}
-                onClick={async () => {
+                onClick={() => {
                   const next = !isBiometricEnabled;
                   setIsBiometricEnabled(next);
-                  if (next) {
-                    await authenticateBiometrics();
-                  }
                 }}
                 role="switch"
                 aria-checked={isBiometricEnabled}
-                aria-label="Toggle Biometric Lock"
+                aria-label="Toggle Passcode Lock"
               >
                 <span className="app-ios-switch-thumb" />
               </button>
@@ -817,8 +824,130 @@ export default function ProfilePage() {
 
             {isBiometricEnabled && (
               <div className="biometric-settings-details">
+                {/* 4-Digit Passcode Management */}
+                <div className="biometric-scope-box" style={{ padding: '14px 16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
+                        4-Digit Passcode
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary, #64748b)' }}>
+                        PIN Status: <span style={{ color: '#059669', fontWeight: 700 }}>● ● ● ● Active</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      style={{
+                        background: 'rgba(5, 150, 105, 0.1)',
+                        color: '#059669',
+                        border: '1px solid rgba(5, 150, 105, 0.3)',
+                        borderRadius: '10px',
+                        padding: '6px 12px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => {
+                        setShowPinChange(!showPinChange);
+                        setPinMsg({ text: '', isError: false });
+                      }}
+                    >
+                      {showPinChange ? 'Cancel' : 'Change PIN'}
+                    </button>
+                  </div>
+
+                  {showPinChange && (
+                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <input
+                        type="password"
+                        maxLength={4}
+                        placeholder="Current PIN (default 1234)"
+                        value={pinOld}
+                        onChange={(e) => setPinOld(e.target.value)}
+                        className="biometric-password-input"
+                        style={{ padding: '8px 12px', fontSize: '13px' }}
+                      />
+                      <input
+                        type="password"
+                        maxLength={4}
+                        placeholder="New 4-digit PIN"
+                        value={pinNew}
+                        onChange={(e) => setPinNew(e.target.value)}
+                        className="biometric-password-input"
+                        style={{ padding: '8px 12px', fontSize: '13px' }}
+                      />
+                      <input
+                        type="password"
+                        maxLength={4}
+                        placeholder="Confirm new 4-digit PIN"
+                        value={pinConfirm}
+                        onChange={(e) => setPinConfirm(e.target.value)}
+                        className="biometric-password-input"
+                        style={{ padding: '8px 12px', fontSize: '13px' }}
+                      />
+                      {pinMsg.text && (
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: pinMsg.isError ? '#ef4444' : '#10b981' }}>
+                          {pinMsg.text}
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="feedback-btn-primary"
+                        style={{ padding: '8px 14px', fontSize: '13px', marginTop: '4px' }}
+                        onClick={() => {
+                          if (!pinOld) {
+                            setPinMsg({ text: 'Please enter your current PIN.', isError: true });
+                            return;
+                          }
+                          if (!/^\d{4}$/.test(pinNew)) {
+                            setPinMsg({ text: 'New PIN must be exactly 4 digits.', isError: true });
+                            return;
+                          }
+                          if (pinNew !== pinConfirm) {
+                            setPinMsg({ text: 'New PIN and confirm PIN do not match.', isError: true });
+                            return;
+                          }
+                          const res = changePasscode(pinOld, pinNew);
+                          if (res.success) {
+                            setPinMsg({ text: '✅ Passcode changed successfully!', isError: false });
+                            setPinOld('');
+                            setPinNew('');
+                            setPinConfirm('');
+                            setTimeout(() => setShowPinChange(false), 1200);
+                          } else {
+                            setPinMsg({ text: res.message || 'Incorrect current PIN.', isError: true });
+                          }
+                        }}
+                      >
+                        Save New Passcode
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Unlock with Biometrics Toggle */}
+                <div className="biometric-toggle-box" style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '14px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+                  <div className="biometric-toggle-info">
+                    <div className="biometric-toggle-title" style={{ fontSize: '13.5px' }}>
+                      Unlock with Fingerprint / Face ID
+                    </div>
+                    <div className="biometric-toggle-desc" style={{ fontSize: '12px' }}>
+                      Tap fingerprint shortcut on passcode keypad
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className={`app-ios-switch ${biometricsEnabled ? 'is-on' : ''}`}
+                    onClick={() => setBiometricsEnabled(!biometricsEnabled)}
+                    role="switch"
+                    aria-checked={biometricsEnabled}
+                  >
+                    <span className="app-ios-switch-thumb" />
+                  </button>
+                </div>
+
                 {/* Scope selector */}
-                <div className="biometric-scope-box">
+                <div className="biometric-scope-box" style={{ marginTop: '10px' }}>
                   <div className="biometric-scope-header">
                     <span className="biometric-sub-label">Enforce Lock Mode:</span>
                     <span className={`biometric-env-badge ${isStandalone ? 'is-pwa' : ''}`}>
@@ -850,7 +979,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Timeout Selector */}
-                <div className="biometric-timeout-box">
+                <div className="biometric-timeout-box" style={{ marginTop: '10px' }}>
                   <span className="biometric-sub-label">Auto-Lock After Inactivity / App Switch:</span>
                   <div className="biometric-timeout-grid">
                     {[
@@ -873,24 +1002,11 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Actions */}
-                <div className="biometric-modal-actions">
-                  <button
-                    type="button"
-                    className="biometric-test-sensor-btn"
-                    onClick={async () => {
-                      const res = await authenticateBiometrics();
-                      if (res?.success) {
-                        alert('✅ Biometric sensor verified successfully!');
-                      }
-                    }}
-                  >
-                    <Icon icon="lucide:fingerprint" width={18} />
-                    <span>Test Sensor</span>
-                  </button>
-
+                <div className="biometric-modal-actions" style={{ marginTop: '14px' }}>
                   <button
                     type="button"
                     className="biometric-lock-now-btn"
+                    style={{ width: '100%' }}
                     onClick={() => {
                       setActiveModal(null);
                       manualLock();

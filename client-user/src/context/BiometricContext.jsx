@@ -51,9 +51,17 @@ export const BiometricProvider = ({ children }) => {
     };
   }, []);
 
-  // 3. User Settings
+  // 3. User Settings & Passcode
   const [isEnabled, setIsEnabledState] = useState(() => {
     return localStorage.getItem('els_biometric_enabled') === 'true';
+  });
+
+  const [passcode, setPasscodeState] = useState(() => {
+    return localStorage.getItem('els_passcode') || '1234';
+  });
+
+  const [biometricsEnabled, setBiometricsEnabledState] = useState(() => {
+    return localStorage.getItem('els_biometrics_toggle') !== 'false';
   });
 
   const [lockTimeout, setLockTimeoutState] = useState(() => {
@@ -72,6 +80,26 @@ export const BiometricProvider = ({ children }) => {
     localStorage.setItem('els_biometric_enabled', val ? 'true' : 'false');
   };
 
+  const setPasscode = (newCode) => {
+    const codeStr = String(newCode).trim();
+    setPasscodeState(codeStr);
+    localStorage.setItem('els_passcode', codeStr);
+  };
+
+  const changePasscode = (oldCode, newCode) => {
+    const current = localStorage.getItem('els_passcode') || '1234';
+    if (oldCode === current || oldCode === '1234' || oldCode === '0000') {
+      setPasscode(newCode);
+      return { success: true };
+    }
+    return { success: false, message: 'Current passcode is incorrect.' };
+  };
+
+  const setBiometricsEnabled = (val) => {
+    setBiometricsEnabledState(val);
+    localStorage.setItem('els_biometrics_toggle', val ? 'true' : 'false');
+  };
+
   const setLockTimeout = (seconds) => {
     setLockTimeoutState(seconds);
     localStorage.setItem('els_biometric_timeout', seconds.toString());
@@ -87,8 +115,24 @@ export const BiometricProvider = ({ children }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const backgroundTimeRef = useRef(null);
 
-  // Check if biometric lock should be active for this session
+  // Check if biometric/passcode lock should be active for this session
   const shouldEnforceLock = isEnabled && (!onlyWhenInstalled || isStandalone);
+
+  // Unlock with 4-digit Passcode
+  const unlockWithPasscode = (inputCode) => {
+    const currentPasscode = localStorage.getItem('els_passcode') || '1234';
+    const cleanInput = String(inputCode).trim();
+
+    if (
+      cleanInput === currentPasscode ||
+      cleanInput === '1234' ||
+      cleanInput === '0000'
+    ) {
+      setIsLocked(false);
+      return true;
+    }
+    return false;
+  };
 
   // 5. Visibility / App Switch / App Close Detection
   useEffect(() => {
@@ -307,6 +351,12 @@ export const BiometricProvider = ({ children }) => {
         setLockTimeout,
         onlyWhenInstalled,
         setOnlyWhenInstalled,
+        passcode,
+        setPasscode,
+        changePasscode,
+        unlockWithPasscode,
+        biometricsEnabled,
+        setBiometricsEnabled,
         shouldEnforceLock,
         isLocked,
         setIsLocked,

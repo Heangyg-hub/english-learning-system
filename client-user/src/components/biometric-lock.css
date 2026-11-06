@@ -297,9 +297,227 @@
   color: #f8fafc;
 }
 
-[data-theme="dark"] .biometric-fallback-btn {
+/* ── Passcode Keypad Styles (App Lock Pattern) ── */
+
+.passcode-card {
+  max-width: 360px;
+  padding: 1.75rem 1.25rem 1.5rem;
+}
+
+.passcode-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.passcode-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 0.5rem 0 0.85rem;
+  transition: transform 0.15s ease;
+}
+
+.passcode-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background-color: transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.passcode-dot.is-filled {
+  background-color: #059669;
+  border-color: #059669;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(5, 150, 105, 0.4);
+}
+
+.passcode-dots.is-success .passcode-dot {
+  background-color: #10b981;
+  border-color: #10b981;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+}
+
+.passcode-dots.is-shaking {
+  animation: shakeDots 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.passcode-dots.is-shaking .passcode-dot {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes shakeDots {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+.passcode-hint-msg {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 1.25rem;
+  min-height: 20px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.passcode-hint-msg.is-error {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* 3x4 Number Keypad Grid */
+.passcode-keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 18px;
+  justify-items: center;
+  align-items: center;
+  width: 100%;
+  max-width: 270px;
+  margin: 0 auto 1.25rem;
+}
+
+.passcode-key-btn {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.passcode-digit {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.passcode-key-btn:hover {
+  background: #e2e8f0;
+}
+
+.passcode-key-btn:active {
+  transform: scale(0.9);
+  background: #cbd5e1;
+}
+
+/* Bottom Action Keys (Fingerprint & Delete) */
+.passcode-action-key {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: #64748b;
+}
+
+.passcode-action-key:hover {
+  background: rgba(241, 245, 249, 0.6);
+  color: #0f172a;
+}
+
+.passcode-action-key:active {
+  transform: scale(0.88);
+  background: rgba(226, 232, 240, 0.8);
+}
+
+.passcode-fp-icon {
+  color: #059669;
+  transition: transform 0.2s ease;
+}
+
+.passcode-action-key:hover .passcode-fp-icon {
+  transform: scale(1.12);
+}
+
+.passcode-action-key.is-scanning .passcode-fp-icon {
+  animation: fpPulse 1s infinite alternate;
+}
+
+@keyframes fpPulse {
+  from { transform: scale(1); filter: drop-shadow(0 0 2px #059669); }
+  to { transform: scale(1.2); filter: drop-shadow(0 0 8px #10b981); }
+}
+
+.passcode-fallback-link-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.passcode-fallback-link-btn:hover {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.08);
+}
+
+/* ── Dark Mode for Passcode Lock ── */
+[data-theme="dark"] .passcode-key-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .passcode-key-btn:hover {
   background: #334155;
+}
+
+[data-theme="dark"] .passcode-key-btn:active {
+  background: #475569;
+}
+
+[data-theme="dark"] .passcode-action-key {
+  background: transparent;
+  border-color: transparent;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .passcode-action-key:hover {
+  background: rgba(51, 65, 85, 0.5);
   color: #f8fafc;
 }
+
+[data-theme="dark"] .passcode-dot {
+  border-color: #475569;
+}
+
+[data-theme="dark"] .passcode-hint-msg {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .passcode-fallback-link-btn {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .passcode-fallback-link-btn:hover {
+  color: #34d399;
+  background: rgba(5, 150, 105, 0.15);
+}
+
 
 
