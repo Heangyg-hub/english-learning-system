@@ -26,17 +26,14 @@ export default function BiometricLockOverlay() {
 
   const autoPromptRef = useRef(false);
 
-  // Auto trigger biometrics prompt once when locked if biometrics is enabled and enrolled
+  // Auto trigger native device screen lock / biometric prompt on lock
   useEffect(() => {
     if (isLocked && !fallbackMode && biometricsEnabled && !autoPromptRef.current) {
       autoPromptRef.current = true;
-      const hasEnrolled = localStorage.getItem('els_passkey_id');
-      if (hasEnrolled) {
-        const timer = setTimeout(() => {
-          authenticateBiometrics();
-        }, 300);
-        return () => clearTimeout(timer);
-      }
+      const timer = setTimeout(() => {
+        handleBiometricPress();
+      }, 250);
+      return () => clearTimeout(timer);
     }
     if (!isLocked) {
       autoPromptRef.current = false;
@@ -46,7 +43,7 @@ export default function BiometricLockOverlay() {
       setErrorMsg('');
       setFallbackMode(false);
     }
-  }, [isLocked, fallbackMode, biometricsEnabled, authenticateBiometrics]);
+  }, [isLocked, fallbackMode, biometricsEnabled]);
 
   if (!isLocked) return null;
 
@@ -160,8 +157,23 @@ export default function BiometricLockOverlay() {
 
             {/* Error or Hint Message */}
             <p className={`passcode-hint-msg ${errorMsg ? 'is-error' : ''}`}>
-              {errorMsg || 'Enter your 4-digit passcode to unlock'}
+              {errorMsg || 'Enter your 4-digit passcode or use screen lock'}
             </p>
+
+            {/* Quick Screen Lock / Fingerprint Banner */}
+            {biometricsEnabled && (
+              <button
+                type="button"
+                className={`passcode-screen-lock-banner-btn ${isAuthenticating ? 'is-scanning' : ''}`}
+                onClick={handleBiometricPress}
+                disabled={isAuthenticating}
+              >
+                <Icon icon="lucide:fingerprint" width={18} />
+                <span>
+                  {isAuthenticating ? 'Scanning Screen Lock...' : 'Use Screen Lock / Fingerprint'}
+                </span>
+              </button>
+            )}
 
             {/* 3x4 Number Keypad */}
             <div className="passcode-keypad-grid">

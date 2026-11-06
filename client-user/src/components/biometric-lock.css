@@ -372,6 +372,40 @@
   font-weight: 600;
 }
 
+/* Quick Screen Lock / Fingerprint Banner */
+.passcode-screen-lock-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  color: #059669;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.15s ease;
+}
+
+.passcode-screen-lock-banner-btn:hover {
+  background: rgba(5, 150, 105, 0.16);
+  border-color: #059669;
+  transform: translateY(-1px);
+}
+
+.passcode-screen-lock-banner-btn:active {
+  transform: translateY(0);
+}
+
+.passcode-screen-lock-banner-btn.is-scanning {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+}
+
 /* 3x4 Number Keypad Grid */
 .passcode-keypad-grid {
   display: grid;
@@ -517,6 +551,12 @@
 [data-theme="dark"] .passcode-fallback-link-btn:hover {
   color: #34d399;
   background: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="dark"] .passcode-screen-lock-banner-btn {
+  background: rgba(5, 150, 105, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
 }
 
 
