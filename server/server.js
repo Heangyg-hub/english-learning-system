@@ -5,8 +5,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 
 const env = require('./config/env');
+const { connectDB } = require('./config/db');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
 const apiRoutes = require('./routes');
@@ -36,6 +38,10 @@ app.use(
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+      // Allow Vercel preview and production domains
+      if (origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
       try {
         const host = new URL(origin).hostname;
         if (host === 'localhost' || host === '127.0.0.1') {
@@ -59,6 +65,18 @@ if (env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Ensure database connection for serverless/Vercel environments
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (err) {
+      return next(err);
+    }
+  }
+  next();
+});
 
 // API Routes
 app.use('/api', apiRoutes);

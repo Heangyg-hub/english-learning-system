@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const env = require('../config/env');
+const { connectDB, disconnectDB } = require('../config/db');
 const User = require('../models/User.model');
 const Program = require('../models/Program.model');
 const Level = require('../models/Level.model');
@@ -9,8 +10,17 @@ const Vocabulary = require('../models/Vocabulary.model');
 
 const seedData = async () => {
   try {
-    await mongoose.connect(env.MONGO_URI);
-    console.log('[Seed] Connected to MongoDB');
+    // Safety guard: prevent accidental wipe in production
+    if (env.isProduction) {
+      console.error(
+        `\n[Seed Error] Seeding is BLOCKED in production mode (NODE_ENV=production, DB="${env.DB_NAME}").`
+      );
+      console.error('This protects your live production data from being cleared.\n');
+      process.exit(1);
+    }
+
+    await connectDB();
+    console.log(`[Seed] Connected to database: "${mongoose.connection.name}"`);
 
     // 1. Clear existing test data
     await Promise.all([
@@ -378,9 +388,11 @@ const seedData = async () => {
     console.log(`[Seed] Seeded ${vocabularyData.length} rich English-Khmer vocabulary entries`);
 
     console.log('[Seed] Database seeding completed successfully! ✨');
+    await disconnectDB();
     process.exit(0);
   } catch (error) {
     console.error('[Seed] Error seeding database:', error);
+    await disconnectDB();
     process.exit(1);
   }
 };
