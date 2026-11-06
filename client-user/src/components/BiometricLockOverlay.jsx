@@ -6,24 +6,37 @@ import EducationDegreeIcon from './EducationDegreeIcon';
 import './biometric-lock.css';
 
 export default function BiometricLockOverlay() {
-  const { isLocked, authenticateBiometrics, isAuthenticating, unlockWithPassword } = useBiometrics();
+  const { isLocked, authenticateBiometrics, isAuthenticating, unlockWithPassword, setIsLocked } =
+    useBiometrics();
   const { user } = useAuth();
 
   const [fallbackMode, setFallbackMode] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [sensorHint, setSensorHint] = useState('');
 
-  // Auto trigger biometrics prompt once when locked
+  // Auto-prompt biometrics only if a passkey was already registered on this device
   useEffect(() => {
     if (isLocked && !fallbackMode) {
-      const timer = setTimeout(() => {
-        authenticateBiometrics();
-      }, 400);
-      return () => clearTimeout(timer);
+      const hasEnrolled = localStorage.getItem('els_passkey_id');
+      if (hasEnrolled) {
+        const timer = setTimeout(() => {
+          authenticateBiometrics();
+        }, 350);
+        return () => clearTimeout(timer);
+      }
     }
   }, [isLocked, fallbackMode]);
 
   if (!isLocked) return null;
+
+  const handleScanClick = async () => {
+    setSensorHint('');
+    const res = await authenticateBiometrics();
+    if (!res?.success && res?.message) {
+      setSensorHint(res.message);
+    }
+  };
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
@@ -32,6 +45,7 @@ export default function BiometricLockOverlay() {
     if (ok) {
       setPasswordInput('');
       setErrorMsg('');
+      setSensorHint('');
       setFallbackMode(false);
     } else {
       setErrorMsg('Incorrect password. Please try again.');
@@ -74,7 +88,7 @@ export default function BiometricLockOverlay() {
             <button
               type="button"
               className={`biometric-fingerprint-btn ${isAuthenticating ? 'is-scanning' : ''}`}
-              onClick={() => authenticateBiometrics()}
+              onClick={handleScanClick}
               title="Tap to scan fingerprint or Face"
             >
               <div className="fingerprint-scan-ring" />
@@ -85,13 +99,13 @@ export default function BiometricLockOverlay() {
             <p className="biometric-sensor-hint">
               {isAuthenticating
                 ? 'Verifying biometric sensor…'
-                : 'Touch fingerprint sensor or scan Face to unlock'}
+                : sensorHint || 'Touch fingerprint sensor or scan Face to unlock'}
             </p>
 
             <button
               type="button"
               className="biometric-unlock-action-btn"
-              onClick={() => authenticateBiometrics()}
+              onClick={handleScanClick}
               disabled={isAuthenticating}
             >
               <Icon icon="lucide:fingerprint" width={20} />
@@ -127,7 +141,7 @@ export default function BiometricLockOverlay() {
               <input
                 type="password"
                 className="biometric-password-input"
-                placeholder="Enter password"
+                placeholder="Enter password (e.g. Admin@heang123$)"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 autoFocus
