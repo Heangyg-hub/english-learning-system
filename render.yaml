@@ -18,3 +18,7 @@ services:
         sync: false
       - key: JWT_EXPIRES_IN
         value: 7d
+      - key: CLIENT_ADMIN_URL
+        sync: false
+      - key: CLIENT_USER_URL
+        sync: false

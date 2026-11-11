@@ -27,34 +27,37 @@ app.use(
 );
 
 // CORS configuration
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // In development or when no origin header (like mobile apps/postman), allow
-      if (!origin || env.NODE_ENV === 'development') {
+const corsOptions = {
+  origin: (origin, callback) => {
+    // In development or when no origin header (like mobile apps/postman), allow
+    if (!origin || env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    const allowedOrigins = [env.CLIENT_ADMIN_URL, env.CLIENT_USER_URL].filter(Boolean);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // Allow Vercel preview and production domains
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    try {
+      const host = new URL(origin).hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
         return callback(null, true);
       }
-      const allowedOrigins = [env.CLIENT_ADMIN_URL, env.CLIENT_USER_URL].filter(Boolean);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      // Allow Vercel preview and production domains
-      if (origin.endsWith('.vercel.app')) {
-        return callback(null, true);
-      }
-      try {
-        const host = new URL(origin).hostname;
-        if (host === 'localhost' || host === '127.0.0.1') {
-          return callback(null, true);
-        }
-      } catch {
-        // invalid URL
-      }
-      callback(new Error('Blocked by CORS policy'));
-    },
-    credentials: true,
-  })
-);
+    } catch {
+      // invalid URL
+    }
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // Logging
 if (env.NODE_ENV === 'development') {
